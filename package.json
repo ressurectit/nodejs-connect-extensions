@@ -1,0 +1,27 @@
+{
+    "name": "nodejs-connect-extensions",
+    "version": "1.0.0",
+    "description": "",
+    "main": "dist/index.js",
+    "typings": "dist/index.d.ts",
+    "scripts": {
+        "deploy:stable": "npp -b",
+        "deploy:next": "npp -p -b -s \"beta\" -t \"next\"",
+        "deploy:stable:local": "npp -b --registry http://local:4873",
+        "deploy:next:local": "npp -p -b -s \"beta\" -t \"next\" --registry http://local:4873"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/ressurectit/nodejs-connect-extensions"
+    },
+    "author": "kukjevov",
+    "license": "MIT",
+    "dependencies": {
+        "extend": "3.0.1"
+    },
+    "devDependencies": {
+        "@types/node": "9.6.2",
+        "@types/connect": "3.4.31",
+        "npm-publish-pkg": "~1.2.0"
+    }
+}

@@ -1,0 +1,22 @@
+{
+    "compilerOptions":
+    {
+        "target": "es5",
+        "module": "esnext",
+        "moduleResolution": "node",
+        "lib": 
+        [
+            "es2016",
+            "dom"
+        ],
+        "types": 
+        [
+            "node",
+            "connect"
+        ]
+    },
+    "exclude": 
+    [
+        "node_modules"
+    ]
+}
