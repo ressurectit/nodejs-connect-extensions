@@ -103,6 +103,8 @@ exports.extendConnectUse = function(server)
             options = arguments[3];
         }
 
+        console.log(`Using mocks for ${useArgs[0]} ${useArgs[1]}`);
+
         var options = extend({},
         {
             contentType: 'application/json',
@@ -157,18 +159,19 @@ exports.extendConnectUse = function(server)
             var urlParts = url.parse(req.url, true);
             var query = urlParts.query;
             var matches = req.matches;
+            var mockPathString = mockPath;
 
             //mock path is selection function
             if(typeof mockPath == "function")
             {
-                mockPath = mockPath(req, matches, query);
+                mockPathString = mockPath(req, matches, query);
             }
 
             //Mock file does not exists
-            if(!fs.existsSync(mockPath))
+            if(!fs.existsSync(mockPathString))
             {
                 res.statusCode = 500;
-                res.end(`Mock file '${mockPath}' was not found!`);
+                res.end(`Mock file '${mockPathString}' was not found!`);
 
                 return;
             }
@@ -176,12 +179,14 @@ exports.extendConnectUse = function(server)
             {
                 try
                 {
-                    data = JSON.parse(fs.readFileSync(mockPath));
+                    data = JSON.parse(fs.readFileSync(mockPathString));
+
+                    console.log(`Using mock file '${mockPathString}'`);
                 }
                 catch(e)
                 {
                     res.statusCode = 500;
-                    res.end(`Not valid json '${mockPath}'!`);
+                    res.end(`Not valid json '${mockPathString}'!`);
 
                     return;
                 }
