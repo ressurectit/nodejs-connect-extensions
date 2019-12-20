@@ -17,7 +17,7 @@
     "author": "kukjevov",
     "license": "MIT",
     "dependencies": {
-        "extend": "3.0.1"
+        "extend": "3.0.2"
     },
     "devDependencies": {
         "@types/node": "9.6.2",
