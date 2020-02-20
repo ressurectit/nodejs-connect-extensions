@@ -1,6 +1,7 @@
 var fs = require('fs'),
     extend = require('extend'),
-    url = require('url');
+    url = require('url'),
+    {isJsObject, isPresent, isString} = require('@jscrpt/common');
 
 var originalUse = null;
 
@@ -153,9 +154,10 @@ exports.extendConnectUse = function(server)
 
         useArgs.push(function(req, res)
         {
-            console.time(`GET ${req.originalUrl}`);
+            console.time(`REQUEST ${req.originalUrl}`);
 
             var data;
+            var handleObj;
             var urlParts = url.parse(req.url, true);
             var query = urlParts.query;
             var matches = req.matches;
@@ -165,15 +167,40 @@ exports.extendConnectUse = function(server)
             if(typeof mockPath == "function")
             {
                 mockPathString = mockPath(req, matches, query);
+
+                //handle response object
+                if(isJsObject(mockPathString))
+                {
+                    handleObj = mockPathString;
+
+                    if(isString(handleObj.result))
+                    {
+                        mockPathString = handleObj.result;
+                    }
+                    else
+                    {
+                        mockPathString = "";
+                    }
+                }
             }
 
             //Mock file does not exists
             if(!fs.existsSync(mockPathString))
             {
-                res.statusCode = 500;
-                res.end(`Mock file '${mockPathString}' was not found!`);
+                if(isPresent(handleObj))
+                {
+                    options = extend({}, options, handleObj);
+                    data = handleObj.result;
+                }
+                else
+                {
+                    res.statusCode = 500;
+                    res.end(`Mock file '${mockPathString}' was not found!`);
+    
+                    console.timeEnd(`REQUEST ${req.originalUrl}`);
 
-                return;
+                    return;
+                }
             }
             else
             {
@@ -188,6 +215,8 @@ exports.extendConnectUse = function(server)
                     res.statusCode = 500;
                     res.end(`Not valid json '${mockPathString}'!`);
 
+                    console.timeEnd(`REQUEST ${req.originalUrl}`);
+
                     return;
                 }
             }
@@ -197,6 +226,7 @@ exports.extendConnectUse = function(server)
             if(options.emptyResult)
             {
                 res.end(null);
+                console.timeEnd(`REQUEST ${req.originalUrl}`);
 
                 return;
             }
@@ -220,7 +250,7 @@ exports.extendConnectUse = function(server)
 
             res.end(options.resultFn(data));
 
-            console.timeEnd(`GET ${req.originalUrl}`);
+            console.timeEnd(`REQUEST ${req.originalUrl}`);
         });
 
         server.use.apply(server, useArgs);

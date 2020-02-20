@@ -77,6 +77,11 @@ declare namespace createServer
         dataArray?: boolean;
 
         /**
+         * Result that is returned as http response body, used only when function returns MockOptions, if result is path to existing json file it will be used
+         */
+        result?: any;
+
+        /**
          * Method used for creating result if dataArray is true
          */
         dataArrayResultFn?: (data: PagedData) => any;
@@ -133,7 +138,7 @@ declare namespace createServer
          * @param mockPath Path to mock file that contains json to be returned, or function that receives request, matches and query parameters and returns path to file
          * @param options Options for returning data
          */
-        useMock(route: string, mockPath: string|((req: http.IncomingMessage, matches: RegExpExecArray, query: any) => string), options?: MockOptions): Server;
+        useMock(route: string, mockPath: string|((req: http.IncomingMessage, matches: RegExpExecArray, query: any) => string|MockOptions), options?: MockOptions): Server;
 
         /**
          * Returns mockPath data according specified options if route matches request
@@ -141,7 +146,7 @@ declare namespace createServer
          * @param mockPath Path to mock file that contains json to be returned, or function that receives request, matches and query parameters and returns path to file
          * @param options Options for returning data
          */
-        useMock(route: RegExp, mockPath: string|((req: http.IncomingMessage, matches: RegExpExecArray, query: any) => string), options?: MockOptions): Server;
+        useMock(route: RegExp, mockPath: string|((req: http.IncomingMessage, matches: RegExpExecArray, query: any) => string|MockOptions), options?: MockOptions): Server;
 
         /**
          * Returns mockPath data according specified options if method and route matches request
@@ -150,7 +155,7 @@ declare namespace createServer
          * @param mockPath Path to mock file that contains json to be returned, or function that receives request, matches and query parameters and returns path to file
          * @param options Options for returning data
          */
-        useMock(method: string, route: string, mockPath: string|((req: http.IncomingMessage, matches: RegExpExecArray, query: any) => string), options?: MockOptions): Server;
+        useMock(method: string, route: string, mockPath: string|((req: http.IncomingMessage, matches: RegExpExecArray, query: any) => string|MockOptions), options?: MockOptions): Server;
 
         /**
          * Returns mockPath data according specified options if method and route matches request
@@ -159,7 +164,7 @@ declare namespace createServer
          * @param mockPath Path to mock file that contains json to be returned, or function that receives request, matches and query parameters and returns path to file
          * @param options Options for returning data
          */
-        useMock(method: string, route: RegExp, mockPath: string|((req: http.IncomingMessage, matches: RegExpExecArray, query: any) => string), options?: MockOptions): Server;
+        useMock(method: string, route: RegExp, mockPath: string|((req: http.IncomingMessage, matches: RegExpExecArray, query: any) => string|MockOptions), options?: MockOptions): Server;
     }
 }
 

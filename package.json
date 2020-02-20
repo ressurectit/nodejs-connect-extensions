@@ -1,14 +1,16 @@
 {
     "name": "nodejs-connect-extensions",
-    "version": "1.0.1",
-    "description": "",
+    "version": "0.0.0-placeholder",
+    "description": "Extensions for Connect server",
     "main": "dist/index.js",
     "typings": "dist/index.d.ts",
     "scripts": {
-        "deploy:stable": "npp -b",
-        "deploy:next": "npp -p -b -s \"beta\" -t \"next\"",
-        "deploy:stable:local": "npp -b --registry http://local:4873",
-        "deploy:next:local": "npp -p -b -s \"beta\" -t \"next\" --registry http://local:4873"
+        "version:placeholder": "replace-in-file /\\\"version\\\":\\s\\\".*?\\\"/g \"\\\"version\\\": \\\"0.0.0-placeholder\\\"\" package.json --isRegex",
+        "version:git": "ngv -e \"replace-in-file 0.0.0-placeholder $GIT_VERSION package.json\"",
+        "prepublishOnly": "npm run version:placeholder && npm run version:git",
+        "postpublish": "npm run version:placeholder",
+        "deploy": "npm publish",
+        "deploy:next": "npm publish --tag next"
     },
     "repository": {
         "type": "git",
@@ -16,12 +18,20 @@
     },
     "author": "kukjevov",
     "license": "MIT",
-    "dependencies": {
-        "extend": "3.0.1"
+    "bugs": {
+        "url": "https://github.com/ressurectit/nodejs-connect-extensions/issues"
+    },
+    "homepage": "https://github.com/ressurectit/nodejs-connect-extensions",
+    "peerDependencies": {
+        "extend": "^3.0.2",
+        "@jscrpt/common": "^1.1.0"
     },
     "devDependencies": {
-        "@types/node": "9.6.2",
+        "extend": "^3.0.2",
+        "@jscrpt/common": "^1.1.0",
+        "@types/node": "13.7.4",
         "@types/connect": "3.4.31",
-        "npm-publish-pkg": "~1.2.0"
+        "replace-in-file": "4.1.0",
+        "npm-git-version": "1.1.1"
     }
 }
