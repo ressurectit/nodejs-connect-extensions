@@ -106,7 +106,7 @@ exports.extendConnectUse = function(server)
 
         console.log(`Using mocks for ${useArgs[0]} ${useArgs[1]}`);
 
-        var options = extend({},
+        var options, originalOptions = extend({},
         {
             contentType: 'application/json',
             statusCode: 200,
@@ -183,6 +183,8 @@ exports.extendConnectUse = function(server)
                     }
                 }
             }
+
+            options = originalOptions;
 
             //Mock file does not exists
             if(!fs.existsSync(mockPathString))
