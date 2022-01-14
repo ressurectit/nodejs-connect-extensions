@@ -2,15 +2,33 @@
     "name": "nodejs-connect-extensions",
     "version": "0.0.0-placeholder",
     "description": "Extensions for Connect server",
-    "main": "dist/index.js",
-    "typings": "dist/index.d.ts",
+    "type": "module",
+    "sideEffects": false,
     "scripts": {
+        "build": "npm run tsc -- --declaration --declarationDir . --declarationMap && npm run tsc -- --outDir module -m CommonJS && npm run build:cjs && npm run build:mjs",
+        "clean": "rimraf es module src/**/*.d.ts src/**/*.d.ts.map ./*.d.ts ./*d.ts.map",
+        "clean:deps": "rimraf package-lock.json node_modules",
+        "clean:all": "npm run clean && npm run clean:deps",
+        "tsc": "tsc",
         "version:placeholder": "replace-in-file /\\\"version\\\":\\s\\\".*?\\\"/g \"\\\"version\\\": \\\"0.0.0-placeholder\\\"\" package.json --isRegex",
-        "version:git": "ngv -e \"replace-in-file 0.0.0-placeholder $GIT_VERSION package.json\"",
-        "prepublishOnly": "npm run version:placeholder && npm run version:git",
-        "postpublish": "npm run version:placeholder",
-        "deploy": "npm publish",
-        "deploy:next": "npm publish --tag next"
+        "version:git": "ngv -e \"replace-in-file 0.0.0-placeholder $GIT_VERSION package.json && echo $GIT_VERSION > version.bak\"",
+        "version:build": "ngv -e \"echo $GIT_VERSION > version.bak\"",
+        "prepublishOnly": "npm run bundle && npm run version:placeholder && npm run version:git",
+        "postpublish": "npm run version:placeholder && npm run clean",
+        "bundle": "npm run clean && npm run build",
+        "deploy": "npm publish --loglevel error",
+        "deploy:next": "npm publish --tag next --loglevel error",
+        "build:cjs": "npm run build:cjs:rename && npm run build:cjs:replace:map && npm run build:cjs:replace:relative",
+        "build:cjs:rename": "node node_modules/rename-cli/bin.js module/**/*.js {{f}}.cjs",
+        "build:cjs:replace:map": "replace-in-file .js\"\" .cjs\"\" module/**/*.js.map",
+        "build:cjs:replace:relative": "replace-in-file /require\\(\\\"[.](.*)\\\"/g require(\\\".$1.cjs\\\" module/**/*.cjs --isRegex",
+        "build:mjs": "npm run build:mjs:rename && npm run build:mjs:replace:map && npm run build:mjs:replace:relative",
+        "build:mjs:rename": "node node_modules/rename-cli/bin.js es/**/*.js {{f}}.mjs",
+        "build:mjs:replace:map": "replace-in-file .js\"\" .mjs\"\" es/**/*.js.map",
+        "build:mjs:replace:relative": "replace-in-file /from\\s'[.](.*)'/g \"from '.$1.mjs'\" es/**/*.mjs --isRegex"
+    },
+    "engines": {
+        "node": "^12.20.0 || ^14.15.0 || >=16.10.0"
     },
     "repository": {
         "type": "git",
@@ -24,14 +42,41 @@
     "homepage": "https://github.com/ressurectit/nodejs-connect-extensions",
     "peerDependencies": {
         "extend": "^3.0.2",
-        "@jscrpt/common": "^1.1.0"
+        "dotenv": "^11.0.0",
+        "@jscrpt/common": "^2.2.0",
+        "tslib": "^2.3.1"
     },
     "devDependencies": {
         "extend": "^3.0.2",
-        "@jscrpt/common": "^1.1.0",
-        "@types/node": "13.7.4",
-        "@types/connect": "3.4.31",
-        "replace-in-file": "4.1.0",
-        "npm-git-version": "1.1.1"
+        "dotenv": "^11.0.0",
+        "@jscrpt/common": "^2.2.0",
+        "@types/node": "^14.14.31",
+        "@types/connect": "3.4.35",
+        "tslib": "2.3.1",
+        "eslint": "7.32.0",
+        "@typescript-eslint/eslint-plugin": "4.33.0",
+        "@typescript-eslint/parser": "4.33.0",
+        "eslint-plugin-ressurectit": "0.1.0",
+        "rimraf": "3.0.2",
+        "replace-in-file": "6.3.2",
+        "rename-cli": "6.2.1",
+        "typescript": "4.5.4",
+        "npm-git-version": "2.0.0"
+    },
+    "main": "./module/src/index.cjs",
+    "module": "./module/src/index.cjs",
+    "typings": "./src/index.d.ts",
+    "exports": {
+        "./package.json": {
+            "default": "./package.json"
+        },
+        ".": {
+            "types": "./src/index.d.ts",
+            "node": {
+                "require": "./module/src/index.cjs",
+                "import": "./es/src/index.mjs"
+            },
+            "default": "./module/src/index.cjs"
+        }
     }
 }

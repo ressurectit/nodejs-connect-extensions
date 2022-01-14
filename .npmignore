@@ -1,4 +1,13 @@
 /.vscode
-.jsbeautifyrc
 
+.eslintrc.json
+appveyor.yml
+ngv.config.json
+tsconfig.json
+
+*.ts
+!*.d.ts
+
+*~
+*.orig
 *.log

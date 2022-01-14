@@ -1,6 +1,12 @@
 /node_modules
+/es
+/module
 /docs
 
 package-lock.json
+*.d.ts
 *.log
+*.bak
+*.orig
+*.map
 *~
