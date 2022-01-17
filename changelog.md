@@ -8,6 +8,8 @@
 - fixed paths of output files
 - fixed problem with extending `IncomingMessage`
 - for now not supporting error middleware
+- fixed obtaining of query parameters in `useMock`
+- fixed running application with only string path and handle, or with http method
 
 ## Version 2.0.0 (2022-01-17)
 

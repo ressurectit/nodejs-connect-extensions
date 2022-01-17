@@ -208,7 +208,7 @@ export const extendConnectUse = function extendConnectUse(server: Server, extend
                 throw new Error('Missing path in use function!');
             }
 
-            return originalUse.call(this, path, methodSelector);
+            return originalUse.call(this, path, (req: IncomingMessage, res: ServerResponse, next: NextFunction) => methodSelector(req, res, next, false));
         }
         //Use original method
         else
@@ -382,7 +382,7 @@ export const extendConnectUse = function extendConnectUse(server: Server, extend
                 throw new Error('Missing URL parameter in request');
             }
 
-            const query = new URLSearchParams(new URL(req.url).search);
+            const query = new URLSearchParams(new URL(req.url, 'http://notimportant').search);
             let data: any;
 
             //result getter is function
