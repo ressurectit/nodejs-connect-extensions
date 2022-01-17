@@ -38,7 +38,7 @@ export type MockResultFunction = (req: http.IncomingMessage, matches?: RegExpExe
 /**
  * Incoming message extended with lib specific data
  */
-export class IncomingMessage extends ConnectIncomingMessage
+export interface IncomingMessage extends ConnectIncomingMessage
 {
     /**
      * Array of matches in case of use of RegExp as route identification
