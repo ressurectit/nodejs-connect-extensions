@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 2.0.1 (2022-01-17)
+
+### Bug Fixes
+
+- fixed missing `ngv.config.json`
+
 ## Version 2.0.0 (2022-01-17)
 
 ### Features
