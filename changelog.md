@@ -1,6 +1,6 @@
 # Changelog
 
-## Version 2.0.0 (2022-01-14)
+## Version 2.0.0 (2022-01-17)
 
 ### Features
 

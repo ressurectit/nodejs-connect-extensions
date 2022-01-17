@@ -2,12 +2,10 @@ import {isJsObject, isPresent, isString, extend, isFunction, isBlank} from '@jsc
 import fs from 'fs';
 import {parse, join} from 'path';
 import {ServerResponse} from 'http';
-import type {HandleFunction, NextHandleFunction, Server, ErrorHandleFunction, NextFunction, IncomingMessage} from 'connect';
+import type {HandleFunction, NextHandleFunction, Server, ErrorHandleFunction, NextFunction} from 'connect';
 
 import './connect.extensions.types';
-import {ExtendedConnectOptions, HttpMethod, HttpMethodEnum, MockOptions, MockResultFunction, UseFn} from './connect.extensions.interface';
-
-//TODO: correctly define USE signature
+import {ExtendedConnectOptions, HttpMethod, HttpMethodEnum, MockOptions, MockResultFunction, IncomingMessage} from './connect.extensions.interface';
 
 type UseHttpMethodArgs = [HttpMethod, string|RegExp, NextHandleFunction?];
 type UseRouteArgs = [string|RegExp, NextHandleFunction?];
@@ -24,7 +22,7 @@ function isHttpMethod(value: string|RegExp|HttpMethod): value is HttpMethod
     return isString(value) && isPresent(HttpMethodEnum[value as HttpMethod]);
 }
 
-let originalUse: {(fn: NextHandleFunction): Server; (fn: HandleFunction): Server; (route: string, fn: NextHandleFunction): Server; (route: string, fn: HandleFunction): Server; (route: RegExp, fn: HandleFunction): Server; (method: HttpMethod, route: string, fn: HandleFunction): Server; (method: HttpMethod, route: RegExp, fn: HandleFunction): Server; (fn: NextHandleFunction): Server; (fn: HandleFunction): Server; (route: string, fn: NextHandleFunction): Server; (route: string, fn: HandleFunction): Server; (route: RegExp, fn: HandleFunction): Server; (method: HttpMethod, route: string, fn: HandleFunction): Server; (method: HttpMethod, route: RegExp, fn: HandleFunction): Server; call?: any; apply?: any;};
+let originalUse: {(fn: NextHandleFunction): Server; (fn: HandleFunction): Server; (route: string, fn: NextHandleFunction): Server; (route: string, fn: HandleFunction): Server; (route: RegExp, fn: HandleFunction): Server; (route: RegExp, fn: NextHandleFunction): Server; (method: HttpMethod, route: string, fn: HandleFunction): Server; (method: HttpMethod, route: string, fn: NextHandleFunction): Server; (method: HttpMethod, route: RegExp, fn: HandleFunction): Server; (method: HttpMethod, route: RegExp, fn: NextHandleFunction): Server; (fn: NextHandleFunction): Server; (fn: HandleFunction): Server; (route: string, fn: NextHandleFunction): Server; (route: string, fn: HandleFunction): Server; (route: RegExp, fn: HandleFunction): Server; (route: RegExp, fn: NextHandleFunction): Server; (method: HttpMethod, route: string, fn: HandleFunction): Server; (method: HttpMethod, route: string, fn: NextHandleFunction): Server; (method: HttpMethod, route: RegExp, fn: HandleFunction): Server; (method: HttpMethod, route: RegExp, fn: NextHandleFunction): Server; call?: any;};
 
 /**
  * Extends connect use method, adds support for Http method selection and regular expression for matching route and adds method for simple using mocks
@@ -35,23 +33,93 @@ export const extendConnectUse = function extendConnectUse(server: Server, extend
 {
     originalUse = server.use;
 
-    server.use = function(this: Server, routeOrMethodOrFn: HttpMethod|NextHandleFunction|string|RegExp, fnOrRoute?: NextHandleFunction|string|RegExp, fn?: NextHandleFunction): Server
+    server.use = function(this: Server, routeOrMethodOrFn: HttpMethod|NextHandleFunction|HandleFunction|string|RegExp, fnOrRoute?: NextHandleFunction|HandleFunction|string|RegExp, fn?: NextHandleFunction|HandleFunction): Server
     {
+        if(isBlank(routeOrMethodOrFn))
+        {
+            throw new Error('Wrong number of parameters for use function');
+        }
+
         let method: HttpMethod|undefined;
         let regex: RegExp|undefined;
         let path: string|undefined;
-        let func: Exclude<HandleFunction, ErrorHandleFunction> = routeOrMethodOrFn as NextHandleFunction;
+        let func: NextHandleFunction|undefined;
+        let funcWithError: ErrorHandleFunction|undefined;
+
+        //Invokes handle function
+        function invokeHandleFunction(err: any, req: IncomingMessage, res: ServerResponse, next: NextFunction): void
+        {
+            //no error
+            if(isBlank(err))
+            {
+                if(isPresent(func))
+                {
+                    func(req, res, next);
+                }
+                else if(isPresent(funcWithError))
+                {
+                    funcWithError(null, req, res, next);
+                }
+                else
+                {
+                    throw new Error('Missing handle function !!!');
+                }
+            }
+            //there is error
+            else
+            {
+                if(isPresent(func))
+                {
+                    console.log(`Unhandled error: ${err}`);
+
+                    func(req, res, next);
+                }
+                else if(isPresent(funcWithError))
+                {
+                    funcWithError(err, req, res, next);
+                }
+                else
+                {
+                    throw new Error('Missing handle function !!!');
+                }
+            }
+        }
 
         //assigns regex or path according type
-        function assignRegexOrPath(route: RegExp|string)
+        function assignRegexOrPath(route: RegExp|string): void
         {
             if(route instanceof RegExp)
             {
                 regex = route;
             }
-            else
+            else if(isString(route))
             {
                 path = route;
+            }
+            else
+            {
+                throw new Error('Route must be either RegExp or string');
+            }
+        }
+
+        //assigns handle fn according type
+        function assignHandleFn(fn: NextHandleFunction|HandleFunction): void
+        {
+            if(!isFunction(fn))
+            {
+                throw new Error('Handle function have to be Function');
+            }
+
+            //error handle function
+            if(fn.length == 4)
+            {
+                funcWithError = fn as ErrorHandleFunction;
+
+            }
+            // simple or next handle function
+            else
+            {
+                func = fn as NextHandleFunction;
             }
         }
 
@@ -60,7 +128,7 @@ export const extendConnectUse = function extendConnectUse(server: Server, extend
         {
             //second parameter is route
             assignRegexOrPath(fnOrRoute as string|RegExp);
-            func = fn;
+            assignHandleFn(fn);
             method = routeOrMethodOrFn as HttpMethod;
         }
         //specified 2 args ROUTE, FN
@@ -68,12 +136,17 @@ export const extendConnectUse = function extendConnectUse(server: Server, extend
         {
             //first parameter is route
             assignRegexOrPath(routeOrMethodOrFn as string|RegExp);
-            func = fnOrRoute as NextHandleFunction;
+            assignHandleFn(fnOrRoute as NextHandleFunction|HandleFunction);
+        }
+        //only handle function provided
+        else
+        {
+            assignHandleFn(routeOrMethodOrFn as NextHandleFunction|HandleFunction);
         }
 
         //http method selector handler
         //returns true if http method matches or no http method specified
-        const methodSelector = function(req: IncomingMessage, res: ServerResponse, next: NextFunction, regexp?: boolean)
+        const methodSelector = function(err: any, req: IncomingMessage, res: ServerResponse, next: NextFunction, regexp?: boolean): boolean
         {
             //no http method specified
             if(!method)
@@ -87,7 +160,7 @@ export const extendConnectUse = function extendConnectUse(server: Server, extend
                 //runs code only if not RegExp route was used
                 if(!regexp)
                 {
-                    func(req, res, next);
+                    invokeHandleFunction(err, req, res, next);
                 }
 
                 return true;
@@ -104,10 +177,10 @@ export const extendConnectUse = function extendConnectUse(server: Server, extend
         //Route parameter specified as RegExp
         if(regex)
         {
-            return originalUse.call(this, function(req: IncomingMessage, res: ServerResponse, next: NextFunction)
+            return originalUse.call(this, function(err: any, req: IncomingMessage, res: ServerResponse, next: NextFunction)
             {
                 //http method does not match
-                if(!methodSelector(req, res, next, true))
+                if(!methodSelector(err, req, res, next, true))
                 {
                     return;
                 }
@@ -115,10 +188,9 @@ export const extendConnectUse = function extendConnectUse(server: Server, extend
                 //RegExp route match
                 if(regex!.test(req.originalUrl!))
                 {
-                    //TODO: fix types
-                    (req as any).matches = regex!.exec(req.originalUrl!);
+                    req.matches = regex!.exec(req.originalUrl!)!;
 
-                    func(req, res, next);
+                    invokeHandleFunction(err, req, res, next);
                 }
                 //RegExp route does not match
                 else
@@ -131,14 +203,28 @@ export const extendConnectUse = function extendConnectUse(server: Server, extend
         //Http method specified
         if(method)
         {
-            return originalUse.call(this, fnOrRoute, methodSelector);
+            if(isBlank(path))
+            {
+                throw new Error('Missing path in use function!');
+            }
+
+            return originalUse.call(this, path, methodSelector);
         }
         //Use original method
         else
         {
-            return originalUse.apply(this, [path, fnOrRoute].filter(itm => !!itm));
+            //only handle function provided
+            if(isBlank(path))
+            {
+                return originalUse.call(this, func ?? funcWithError);
+            }
+            //handle and string path provided
+            else
+            {
+                return originalUse.call(this, path, func ?? funcWithError);
+            }
         }
-    } as any;
+    };
 
     server.useMock = function(routeOrMethod: string|RegExp|HttpMethod,
                               mockPathOrResultOptionsOrResultFunctionOrRoute: string|RegExp|MockOptions|MockResultFunction,
@@ -287,7 +373,7 @@ export const extendConnectUse = function extendConnectUse(server: Server, extend
                                     }
                                 }, server.useMockDefaultOptions, options);
 
-        useArgs.push(function(req, res)
+        useArgs.push(function(req: IncomingMessage, res: ServerResponse)
         {
             console.time(`REQUEST ${req.originalUrl}`);
 
@@ -302,7 +388,7 @@ export const extendConnectUse = function extendConnectUse(server: Server, extend
             //result getter is function
             if(isPresent(resultFunction))
             {
-                const matches = (req as any).matches;
+                const matches = req.matches;
                 const funcResult = resultFunction(req, matches, query);
 
                 //mock path returned

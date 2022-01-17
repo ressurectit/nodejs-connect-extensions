@@ -1,5 +1,5 @@
 import {StringDictionary} from '@jscrpt/common';
-import {HandleFunction, NextHandleFunction, Server} from 'connect';
+import {HandleFunction, NextHandleFunction, Server, IncomingMessage as ConnectIncomingMessage} from 'connect';
 import type http from 'http';
 
 /**
@@ -33,7 +33,18 @@ export type UseFn = (fnOrRouteOrMethod: string|NextHandleFunction|HandleFunction
 /**
  * Definition of function that receives request, matches and query parameters and returns path to file or options that contains definition of response
  */
-export type MockResultFunction = (req: http.IncomingMessage, matches: RegExpExecArray, query: URLSearchParams) => string|MockOptions;
+export type MockResultFunction = (req: http.IncomingMessage, matches?: RegExpExecArray, query?: URLSearchParams) => string|MockOptions;
+
+/**
+ * Incoming message extended with lib specific data
+ */
+export class IncomingMessage extends ConnectIncomingMessage
+{
+    /**
+     * Array of matches in case of use of RegExp as route identification
+     */
+    matches?: RegExpExecArray;
+}
 
 /**
  * Representation of data that are paged

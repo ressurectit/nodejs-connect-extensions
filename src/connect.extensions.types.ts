@@ -12,6 +12,13 @@ declare module 'connect'
         use(route: RegExp, fn: HandleFunction): Server;
 
         /**
+         * Runs handle function if regular expression matches, regular expression matches are passed to handle as matches property of request
+         * @param route - Route specified as regular expression
+         * @param fn - Handle function
+         */
+        use(route: RegExp, fn: NextHandleFunction): Server;
+
+        /**
          * Runs handle function if http method and route matches
          * @param method - Http method name which be checked for match
          * @param route - Route specified as url prefix string
@@ -20,12 +27,28 @@ declare module 'connect'
         use(method: HttpMethod, route: string, fn: HandleFunction): Server;
 
         /**
+         * Runs handle function if http method and route matches
+         * @param method - Http method name which be checked for match
+         * @param route - Route specified as url prefix string
+         * @param fn - Handle function
+         */
+        use(method: HttpMethod, route: string, fn: NextHandleFunction): Server;
+
+        /**
          * Runs handle function if regular expression and http method matches, regular expression matches are passed to handle as matches property of request
          * @param method - Http method name which be checked for match
          * @param route - Route specified as regular expression
          * @param fn - Handle function
          */
         use(method: HttpMethod, route: RegExp, fn: HandleFunction): Server;
+
+        /**
+         * Runs handle function if regular expression and http method matches, regular expression matches are passed to handle as matches property of request
+         * @param method - Http method name which be checked for match
+         * @param route - Route specified as regular expression
+         * @param fn - Handle function
+         */
+        use(method: HttpMethod, route: RegExp, fn: NextHandleFunction): Server;
 
         /**
          * Returns mocked data according specified options if route matches request
