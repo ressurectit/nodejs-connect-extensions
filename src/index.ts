@@ -146,7 +146,7 @@ export const extendConnectUse = function extendConnectUse(server: Server, extend
 
         //http method selector handler
         //returns true if http method matches or no http method specified
-        const methodSelector = function(err: any, req: IncomingMessage, res: ServerResponse, next: NextFunction, regexp?: boolean): boolean
+        const methodSelector = function(req: IncomingMessage, res: ServerResponse, next: NextFunction, regexp?: boolean): boolean
         {
             //no http method specified
             if(!method)
@@ -160,7 +160,7 @@ export const extendConnectUse = function extendConnectUse(server: Server, extend
                 //runs code only if not RegExp route was used
                 if(!regexp)
                 {
-                    invokeHandleFunction(err, req, res, next);
+                    invokeHandleFunction(null, req, res, next);
                 }
 
                 return true;
@@ -177,10 +177,10 @@ export const extendConnectUse = function extendConnectUse(server: Server, extend
         //Route parameter specified as RegExp
         if(regex)
         {
-            return originalUse.call(this, function(err: any, req: IncomingMessage, res: ServerResponse, next: NextFunction)
+            return originalUse.call(this, function(req: IncomingMessage, res: ServerResponse, next: NextFunction)
             {
                 //http method does not match
-                if(!methodSelector(err, req, res, next, true))
+                if(!methodSelector(req, res, next, true))
                 {
                     return;
                 }
@@ -190,7 +190,7 @@ export const extendConnectUse = function extendConnectUse(server: Server, extend
                 {
                     req.matches = regex!.exec(req.originalUrl!)!;
 
-                    invokeHandleFunction(err, req, res, next);
+                    invokeHandleFunction(null, req, res, next);
                 }
                 //RegExp route does not match
                 else

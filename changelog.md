@@ -7,6 +7,7 @@
 - fixed missing `ngv.config.json`
 - fixed paths of output files
 - fixed problem with extending `IncomingMessage`
+- for now not supporting error middleware
 
 ## Version 2.0.0 (2022-01-17)
 
