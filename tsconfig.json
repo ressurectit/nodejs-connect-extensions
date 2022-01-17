@@ -18,6 +18,7 @@
         "esModuleInterop": true,
         "importHelpers": true,
         "newLine": "lf",
+        "rootDir": ".",
         "outDir": "es",
         "lib": 
         [

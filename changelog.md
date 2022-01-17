@@ -5,6 +5,7 @@
 ### Bug Fixes
 
 - fixed missing `ngv.config.json`
+- fixed paths of output files
 
 ## Version 2.0.0 (2022-01-17)
 
