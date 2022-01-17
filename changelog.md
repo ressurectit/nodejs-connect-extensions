@@ -10,6 +10,7 @@
 - for now not supporting error middleware
 - fixed obtaining of query parameters in `useMock`
 - fixed running application with only string path and handle, or with http method
+- fixed obtaining of `result` from *resultOptions*
 
 ## Version 2.0.0 (2022-01-17)
 

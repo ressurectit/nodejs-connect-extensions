@@ -326,7 +326,8 @@ export const extendConnectUse = function extendConnectUse(server: Server, extend
         delete options?.result;
         delete server.useMockDefaultOptions?.result;
 
-        let useOptions = extend({},
+        let useOptions = extend(true,
+                                {},
                                 <MockOptions>
                                 {
                                     contentType: 'application/json',
@@ -420,8 +421,8 @@ export const extendConnectUse = function extendConnectUse(server: Server, extend
                     mockPath = '';
                 }
 
+                useOptions = extend(true, {}, useOptions, resultOptions);
                 data = useOptions.result;
-                useOptions = extend({}, useOptions, resultOptions);
             }
 
             //at this point mock path should be set
