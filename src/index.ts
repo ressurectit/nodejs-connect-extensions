@@ -326,57 +326,59 @@ export const extendConnectUse = function extendConnectUse(server: Server, extend
         delete options?.result;
         delete server.useMockDefaultOptions?.result;
 
-        let useOptions = extend(true,
-                                {},
-                                <MockOptions>
-                                {
-                                    contentType: 'application/json',
-                                    statusCode: 200,
-                                    emptyResult: false,
-                                    dataArray: false,
-                                    resultFn: result => JSON.stringify(result),
-                                    dataResultFn: data => data,
-                                    dataArrayResultFn: data => data,
-                                    pagingFn: (query, data) =>
-                                    {
-                                        const items = data.length;
-                                        let last = true;
-                                        let first = true;
-                                        let page = null;
-                                        let size = null;
-                                        let totalPages = 1;
-                                    
-                                        if(query.has('size') && query.has('page'))
-                                        {
-                                            size = parseInt(query.get('size')!);
-                                            page = parseInt(query.get('page')!);
-                                            totalPages = Math.ceil(items / size);
-                                        
-                                            if(page > 0)
-                                            {
-                                                first = false;
-                                            }
-                                        
-                                            data = data.slice(page * size, (page * size) + size);
-                                            last = items <= (page * size) + size;
-                                        }
-                                    
-                                        return {
-                                            content: data,
-                                            last: last,
-                                            totalElements: items,
-                                            numberOfElements: data.length,
-                                            first: first,
-                                            number: page,
-                                            size: size,
-                                            totalPages: totalPages
-                                        };
-                                    }
-                                }, server.useMockDefaultOptions, options);
+        const staticOptions = extend(true,
+                                     {},
+                                     <MockOptions>
+                                     {
+                                         contentType: 'application/json',
+                                         statusCode: 200,
+                                         emptyResult: false,
+                                         dataArray: false,
+                                         resultFn: result => JSON.stringify(result),
+                                         dataResultFn: data => data,
+                                         dataArrayResultFn: data => data,
+                                         pagingFn: (query, data) =>
+                                         {
+                                             const items = data.length;
+                                             let last = true;
+                                             let first = true;
+                                             let page = null;
+                                             let size = null;
+                                             let totalPages = 1;
+                                         
+                                             if(query.has('size') && query.has('page'))
+                                             {
+                                                 size = parseInt(query.get('size')!);
+                                                 page = parseInt(query.get('page')!);
+                                                 totalPages = Math.ceil(items / size);
+                                             
+                                                 if(page > 0)
+                                                 {
+                                                     first = false;
+                                                 }
+                                             
+                                                 data = data.slice(page * size, (page * size) + size);
+                                                 last = items <= (page * size) + size;
+                                             }
+                                         
+                                             return {
+                                                 content: data,
+                                                 last: last,
+                                                 totalElements: items,
+                                                 numberOfElements: data.length,
+                                                 first: first,
+                                                 number: page,
+                                                 size: size,
+                                                 totalPages: totalPages
+                                             };
+                                         }
+                                     }, server.useMockDefaultOptions, options);
 
         useArgs.push(function(req: IncomingMessage, res: ServerResponse)
         {
             console.time(`REQUEST ${req.originalUrl}`);
+
+            let useOptions = extend(true, {}, staticOptions);
 
             if(isBlank(req.url))
             {
