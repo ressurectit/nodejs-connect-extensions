@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 2.0.3 (2022-04-29)
+
+### Bug Fixes
+
+- fixed problem with storing result for next calls when `MockResultFunction` used, more forgotten code
+
 ## Version 2.0.2 (2022-03-02)
 
 ### Bug Fixes

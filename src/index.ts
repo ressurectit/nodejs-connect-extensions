@@ -379,6 +379,10 @@ export const extendConnectUse = function extendConnectUse(server: Server, extend
             console.time(`REQUEST ${req.originalUrl}`);
 
             let useOptions = extend(true, {}, staticOptions);
+            let useMockPath: string|undefined = mockPath;
+            let useResultOptions: MockOptions|undefined = extend({}, resultOptions);
+            const useResultFunction: MockResultFunction|undefined = resultFunction;
+
 
             if(isBlank(req.url))
             {
@@ -389,20 +393,20 @@ export const extendConnectUse = function extendConnectUse(server: Server, extend
             let data: any;
 
             //result getter is function
-            if(isPresent(resultFunction))
+            if(isPresent(useResultFunction))
             {
                 const matches = req.matches;
-                const funcResult = resultFunction(req, matches, query);
+                const funcResult = useResultFunction(req, matches, query);
 
                 //mock path returned
                 if(isString(funcResult))
                 {
-                    mockPath = funcResult;
+                    useMockPath = funcResult;
                 }
                 //result options returned
                 else if(isJsObject(funcResult))
                 {
-                    resultOptions = funcResult;
+                    useResultOptions = funcResult;
                 }
                 else
                 {
@@ -411,24 +415,24 @@ export const extendConnectUse = function extendConnectUse(server: Server, extend
             }
 
             //Result getter is mock options object
-            if(isPresent(resultOptions))
+            if(isPresent(useResultOptions))
             {
                 //result options have result
-                if(isString(resultOptions.result))
+                if(isString(useResultOptions.result))
                 {
-                    mockPath = resultOptions.result;
+                    useMockPath = useResultOptions.result;
                 }
                 else
                 {
-                    mockPath = '';
+                    useMockPath = '';
                 }
 
-                useOptions = extend(true, {}, useOptions, resultOptions);
+                useOptions = extend(true, {}, useOptions, useResultOptions);
                 data = useOptions.result;
             }
 
             //at this point mock path should be set
-            if(isBlank(mockPath))
+            if(isBlank(useMockPath))
             {
                 throw new Error('Mock path should be set');
             }
@@ -437,7 +441,7 @@ export const extendConnectUse = function extendConnectUse(server: Server, extend
             function hasMockFile(): boolean
             {
                 //at this point mock path should be set
-                if(isBlank(mockPath))
+                if(isBlank(useMockPath))
                 {
                     throw new Error('Mock path should be set');
                 }
@@ -445,30 +449,30 @@ export const extendConnectUse = function extendConnectUse(server: Server, extend
                 //options for extended connect provided and environment was provided
                 if(isPresent(extendedOptions) && isPresent(extendedOptions.environment))
                 {
-                    const parsedPath = parse(mockPath);
+                    const parsedPath = parse(useMockPath);
                     const envMockPath = join(parsedPath.dir, `${parsedPath.name}.${extendedOptions.environment}${parsedPath.ext}`);
 
                     //tests environmnet specific mock file for existance
                     if(fs.existsSync(envMockPath))
                     {
-                        mockPath = envMockPath;
+                        useMockPath = envMockPath;
 
                         return true;
                     }
                 }
 
                 //tests mock path for existance
-                return fs.existsSync(mockPath);
+                return fs.existsSync(useMockPath);
             }
             
             //Mock file does not exists
             if(!hasMockFile())
             {
                 //no mock file and no resultOptions present
-                if(!isPresent(resultOptions))
+                if(!isPresent(useResultOptions))
                 {
                     res.statusCode = 500;
-                    res.end(`Mock file '${mockPath}' was not found!`);
+                    res.end(`Mock file '${useMockPath}' was not found!`);
     
                     console.timeEnd(`REQUEST ${req.originalUrl}`);
 
@@ -480,14 +484,14 @@ export const extendConnectUse = function extendConnectUse(server: Server, extend
             {
                 try
                 {
-                    data = JSON.parse(fs.readFileSync(mockPath) as unknown as string);
+                    data = JSON.parse(fs.readFileSync(useMockPath) as unknown as string);
 
-                    console.log(`Using mock file '${mockPath}'`);
+                    console.log(`Using mock file '${useMockPath}'`);
                 }
                 catch(e)
                 {
                     res.statusCode = 500;
-                    res.end(`Not valid json '${mockPath}'!`);
+                    res.end(`Not valid json '${useMockPath}'!`);
 
                     console.timeEnd(`REQUEST ${req.originalUrl}`);
 
