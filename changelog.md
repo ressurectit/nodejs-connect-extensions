@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 2.0.4 (2022-04-29)
+
+### Bug Fixes
+
+- fixed problem that was introduced in version 2.0.3
+
 ## Version 2.0.3 (2022-04-29)
 
 ### Bug Fixes

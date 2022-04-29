@@ -380,7 +380,7 @@ export const extendConnectUse = function extendConnectUse(server: Server, extend
 
             let useOptions = extend(true, {}, staticOptions);
             let useMockPath: string|undefined = mockPath;
-            let useResultOptions: MockOptions|undefined = extend({}, resultOptions);
+            let useResultOptions: MockOptions|undefined = resultOptions ? extend({}, resultOptions) : undefined;
             const useResultFunction: MockResultFunction|undefined = resultFunction;
 
 
