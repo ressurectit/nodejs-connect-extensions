@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 2.0.5 (2024-05-06)
+
+### Bug Fixes
+
+- fixed problem with exported types, which are only needed for typescript compilation
+
 ## Version 2.0.4 (2022-04-29)
 
 ### Bug Fixes

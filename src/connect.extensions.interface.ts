@@ -1,5 +1,5 @@
-import {StringDictionary} from '@jscrpt/common';
-import {HandleFunction, NextHandleFunction, Server, IncomingMessage as ConnectIncomingMessage} from 'connect';
+import type {StringDictionary} from '@jscrpt/common';
+import type {HandleFunction, NextHandleFunction, Server, IncomingMessage as ConnectIncomingMessage} from 'connect';
 import type http from 'http';
 
 /**

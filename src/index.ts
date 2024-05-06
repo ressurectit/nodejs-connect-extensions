@@ -4,7 +4,6 @@ import {parse, join} from 'path';
 import {ServerResponse} from 'http';
 import type {HandleFunction, NextHandleFunction, Server, ErrorHandleFunction, NextFunction} from 'connect';
 
-import './connect.extensions.types';
 import {ExtendedConnectOptions, HttpMethod, HttpMethodEnum, MockOptions, MockResultFunction, IncomingMessage} from './connect.extensions.interface';
 
 type UseHttpMethodArgs = [HttpMethod, string|RegExp, NextHandleFunction?];

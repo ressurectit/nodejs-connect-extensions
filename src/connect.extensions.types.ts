@@ -1,4 +1,4 @@
-import {MockOptions, HttpMethod, MockResultFunction} from './connect.extensions.interface';
+import type {MockOptions, HttpMethod, MockResultFunction} from './connect.extensions.interface';
 
 declare module 'connect'
 {
