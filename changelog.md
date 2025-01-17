@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 3.0.0 (2025-01-17)
+
+### BREAKING CHANGES
+
+- minimal supported version of `@jscrpt/common` is `7.0.0`
+
 ## Version 2.0.5 (2024-05-06)
 
 ### Bug Fixes

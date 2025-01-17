@@ -1,8 +1,8 @@
 {
     "compilerOptions":
     {
-        "target": "es2020",
-        "module": "es2020",
+        "target": "ES2022",
+        "module": "ES2022",
         "moduleResolution": "node",
         "sourceMap": true,
         "inlineSources": true,
@@ -17,12 +17,15 @@
         "strictNullChecks": true,
         "esModuleInterop": true,
         "importHelpers": true,
+        "useDefineForClassFields": false,
+        "skipLibCheck": false,
+        "forceConsistentCasingInFileNames": true,
         "newLine": "lf",
         "rootDir": ".",
         "outDir": "es",
         "lib": 
         [
-            "es2020",
+            "ES2022",
             "dom"
         ],
         "types": 

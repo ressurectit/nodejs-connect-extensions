@@ -1,4 +1,5 @@
-import {isJsObject, isPresent, isString, extend, isFunction, isBlank} from '@jscrpt/common';
+import {isJsObject, isPresent, isString, isFunction, isBlank} from '@jscrpt/common';
+import {extend} from '@jscrpt/common/extend';
 import fs from 'fs';
 import {parse, join} from 'path';
 import {ServerResponse} from 'http';
