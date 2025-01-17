@@ -6,7 +6,7 @@
     "sideEffects": false,
     "scripts": {
         "build": "npm run tsc -- --declaration --declarationDir . --declarationMap && npm run tsc -- --outDir module -m CommonJS && npm run build:cjs && npm run build:mjs",
-        "clean": "rimraf es module src/**/*.d.ts src/**/*.d.ts.map ./*.d.ts ./*d.ts.map",
+        "clean": "rimraf --glob es module src/**/*.d.ts src/**/*.d.ts.map ./*.d.ts ./*d.ts.map",
         "clean:deps": "rimraf package-lock.json node_modules",
         "clean:all": "npm run clean && npm run clean:deps",
         "tsc": "tsc",
